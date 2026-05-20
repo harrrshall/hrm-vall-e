@@ -1,8 +1,8 @@
 # Progress & learning report
 
 Living status doc for the HRM-on-TTS experiment. Updated as work lands.
-For the narrative chronology see `JOURNAL.md`; for the design rationale
-see `README.md`; for GPU/credentials see `docs/COMPUTE.md`.
+For the design rationale see `README.md`; for GPU/credentials see
+`docs/COMPUTE.md`.
 
 Last updated: 2026-05-20
 

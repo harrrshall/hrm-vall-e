@@ -70,7 +70,6 @@ lose, is citable.
 hrm-vall-e/
 ├── README.md              ← you are here
 ├── PROGRESS.md            ← live status + learnings
-├── JOURNAL.md             ← narrative chronology
 ├── modal_train.py         ← Modal GPU entrypoint
 ├── src/
 │   ├── blocks.py          ← RMSNorm, RoPE, attention, SwiGLU, Block, BlockStack
