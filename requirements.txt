@@ -1,0 +1,14 @@
+# Smoke tests (CPU)
+torch>=2.4,<2.6
+numpy
+pytest
+
+# Kaggle / GPU training (already pre-installed on Kaggle, but listed here
+# so a fresh environment can be set up cleanly)
+torchaudio>=2.4,<2.6
+transformers>=4.44,<4.50
+accelerate>=0.34
+datasets>=2.21
+soundfile
+librosa
+matplotlib
