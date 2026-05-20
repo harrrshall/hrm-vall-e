@@ -54,6 +54,16 @@ and the flawed-then-fixed first run are in [`results/`](results/).
 
 Total cost of the experiment: ~$15 of cloud GPU.
 
+## Next: Experiment V2 — the definitive test
+
+V1's negative result is honest but narrow (15M params, stripped-down
+HRM, proxy metric). [`docs/EXPERIMENT_DESIGN_V2.md`](docs/EXPERIMENT_DESIGN_V2.md)
+is a pre-registered design for the definitive test: ~100M params, the
+*faithful* HRM-Text architecture (MagicNorm + gated attention), a real
+multi-codebook TTS model, both parameter- and FLOPs-matched arms, and
+real metrics (WER, speaker similarity, UTMOS) — so the outcome, win or
+lose, is citable.
+
 ## Layout
 
 ```
