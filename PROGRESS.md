@@ -22,16 +22,25 @@ Last updated: 2026-05-20
 | GitHub repo pushed | done — github.com/harrrshall/hrm-vall-e |
 | Modal smoke test (500 steps) | done — pipeline verified green on A100 |
 | Architecture PNG (`assets/architecture.png`) | done |
-| 1h run (3 seeds, 5000 steps) | done — overfit; HRM best-val 3.86 vs 3.90 |
-| 20h run (3 seeds, train-clean-100) | running — the trustworthy verdict |
+| 1h run (3 seeds, 5000 steps) | done — overfit, not a valid verdict |
+| 20h run (3 seeds, train-clean-100) | done — VERDICT IN |
 
-## 1h run result (2026-05-20)
+## VERDICT (2026-05-20)
 
-3 seeds, 5000 steps, only 611 clips → both backbones overfit.
-- best val loss: HRM 3.858 +/- 0.010, Baseline 3.898 +/- 0.018 (HRM ~1%)
-- final val loss: HRM 5.12, Baseline 9.09 — HRM far more overfit-resistant
-The 20h run on train-clean-100 removes the overfitting confound and is
-the result to cite.
+The trustworthy run (20h, 13,155 clips, 3 seeds, no overfitting):
+
+| backbone | best val loss | per-seed |
+| --- | --- | --- |
+| Baseline | **3.565 +/- 0.003** | 3.563 / 3.569 / 3.563 |
+| HRM      | 3.880 +/- 0.056 | 3.818 / 3.868 / 3.953 |
+
+**Baseline wins by 8.84%** — decisive, gap >> seed noise. A clean
+negative result: the HRM recurrence trick did not transfer to audio
+tokens at this scale. HRM's bp-warmup also costs it ~700 steps of
+plateau and it never closes the gap. Full write-up: `results/README.md`.
+
+The 1h run (611 clips) overfit and is not a valid verdict — kept in
+`results/1h-dev-clean/` for the record only.
 
 ## Credentials — audited, with verification status
 
