@@ -22,7 +22,16 @@ Last updated: 2026-05-20
 | GitHub repo pushed | done — github.com/harrrshall/hrm-vall-e |
 | Modal smoke test (500 steps) | done — pipeline verified green on A100 |
 | Architecture PNG (`assets/architecture.png`) | done |
-| First GPU run (3 seeds, 5000 steps) | running — the actual result |
+| 1h run (3 seeds, 5000 steps) | done — overfit; HRM best-val 3.86 vs 3.90 |
+| 20h run (3 seeds, train-clean-100) | running — the trustworthy verdict |
+
+## 1h run result (2026-05-20)
+
+3 seeds, 5000 steps, only 611 clips → both backbones overfit.
+- best val loss: HRM 3.858 +/- 0.010, Baseline 3.898 +/- 0.018 (HRM ~1%)
+- final val loss: HRM 5.12, Baseline 9.09 — HRM far more overfit-resistant
+The 20h run on train-clean-100 removes the overfitting confound and is
+the result to cite.
 
 ## Credentials — audited, with verification status
 
