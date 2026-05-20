@@ -51,11 +51,21 @@ def main():
 
     # ---- LibriTTS dataset (downloads if missing) ----
     print(f"loading LibriTTS-R {args.split}...")
+    # mythicinfinity/libritts_r expects an HF config name plus a dotted
+    # split name (e.g. config "dev", split "dev.clean") — NOT "dev-clean".
+    # The "dev" config is the smallest (only dev.clean), ideal for quick runs.
+    SPLIT_MAP = {
+        "dev-clean": ("dev", "dev.clean"),
+        "test-clean": ("clean", "test.clean"),
+        "train-clean-100": ("clean", "train.clean.100"),
+    }
+    hf_config, hf_split = SPLIT_MAP[args.split]
     # torchaudio bundles a LIBRITTS class but for LibriTTS-R we use HF datasets
     # for simplicity in Kaggle. Fall back to LIBRITTS if HF not available.
     try:
         from datasets import load_dataset
-        ds = load_dataset("mythicinfinity/libritts_r", args.split, split="train", streaming=True)
+        ds = load_dataset("mythicinfinity/libritts_r", hf_config,
+                          split=hf_split, streaming=True)
         iterator = iter(ds)
         def next_clip():
             item = next(iterator)
