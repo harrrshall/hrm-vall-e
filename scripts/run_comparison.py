@@ -251,13 +251,15 @@ def main() -> None:
 
     hrm = aggregate(hrm_runs)
     base = aggregate(base_runs)
-    h_mean = hrm["final_val_loss"]["mean"]
-    b_mean = base["final_val_loss"]["mean"]
+    # Verdict uses BEST val loss, not final — with small data both backbones
+    # can overfit late, which makes final-step loss a memorisation artefact.
+    h_mean = hrm["best_val_loss"]["mean"]
+    b_mean = base["best_val_loss"]["mean"]
     delta = b_mean - h_mean
     pct = 100.0 * delta / b_mean
     winner = "HRM" if delta > 0 else "Baseline"
     # rough significance: is the gap bigger than the combined spread?
-    spread = hrm["final_val_loss"]["std"] + base["final_val_loss"]["std"]
+    spread = hrm["best_val_loss"]["std"] + base["best_val_loss"]["std"]
     decisive = abs(delta) > spread
 
     results = {
@@ -274,9 +276,11 @@ def main() -> None:
     _hr("VERDICT")
     print(f"  params      HRM {hrm['n_params']:,}   Baseline {base['n_params']:,}")
     print(f"  seeds       {seeds}")
-    print(f"  final val   HRM {h_mean:.4f} +/- {hrm['final_val_loss']['std']:.4f}   "
-          f"Baseline {b_mean:.4f} +/- {base['final_val_loss']['std']:.4f}")
-    print(f"  -> {winner} wins by {abs(pct):.2f}% mean val loss")
+    print(f"  best  val   HRM {h_mean:.4f} +/- {hrm['best_val_loss']['std']:.4f}   "
+          f"Baseline {b_mean:.4f} +/- {base['best_val_loss']['std']:.4f}")
+    print(f"  final val   HRM {hrm['final_val_loss']['mean']:.4f}   "
+          f"Baseline {base['final_val_loss']['mean']:.4f}   (overfit check)")
+    print(f"  -> {winner} wins by {abs(pct):.2f}% mean BEST val loss")
     print(f"  -> gap {'EXCEEDS' if decisive else 'is WITHIN'} combined seed noise "
           f"({abs(delta):.4f} vs {spread:.4f})")
     if not decisive:

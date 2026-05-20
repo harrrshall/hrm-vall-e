@@ -24,8 +24,9 @@ set -u -o pipefail
 
 cd "$(dirname "$0")/.." || exit 99
 JOB="${1:-modal}"; shift || true
-mkdir -p runs
-LOG="runs/${JOB}_run.log"
+# training logs go to the gitignored structured-log tree
+mkdir -p logs/training
+LOG="logs/training/${JOB}_$(date +%Y%m%d_%H%M%S).log"
 STAMP() { date -Is; }
 
 echo "[$(STAMP)] START job=$JOB args=$*" | tee "$LOG"

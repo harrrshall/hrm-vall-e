@@ -56,12 +56,15 @@ def run(steps: int = 5000, hours: float = 1.0, split: str = "dev-clean",
     subprocess.run(
         ["git", "clone", "--depth", "1", "-b", BRANCH, REPO, work], check=True
     )
-    # --data-dir lives on the Volume so EnCodec tokenization is cached
-    # across runs; results land on the Volume too.
+    # Data + results dirs are keyed by (split, hours) so different configs
+    # keep separate caches on the Volume — a bigger run won't silently
+    # reuse a smaller run's tokenized audio.
+    tag = f"{split}_{hours}h".replace(".", "p")
+    out_dir, data_dir = f"/results/run_{tag}", f"/results/data_{tag}"
     subprocess.run(
         [sys.executable, "-m", "scripts.run_comparison",
-         "--out", "/results/run",
-         "--data-dir", "/results/data",
+         "--out", out_dir,
+         "--data-dir", data_dir,
          "--steps", str(steps),
          "--hours", str(hours),
          "--split", split,
@@ -71,8 +74,8 @@ def run(steps: int = 5000, hours: float = 1.0, split: str = "dev-clean",
         cwd=work, check=True,
     )
     vol.commit()
-    print("\nDone. Fetch results with:")
-    print("  modal volume get hrm-vall-e-results /run ./runs/modal")
+    print(f"\nDone. Fetch results with:")
+    print(f"  modal volume get hrm-vall-e-results /run_{tag} ./runs/modal")
 
 
 @app.local_entrypoint()

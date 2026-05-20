@@ -8,3 +8,6 @@ data/
 .ipynb_checkpoints/
 *.log
 runs/
+
+# local-only structured logs: conversation, decision traces, training logs
+logs/
