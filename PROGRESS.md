@@ -19,8 +19,10 @@ Last updated: 2026-05-20
 | Colab runner (`scripts/colab_train.py`) | done |
 | Kaggle CLI metadata (`notebooks/kernel-metadata.json`) | done |
 | Unattended run watcher (`scripts/run_and_notify.sh`) | done |
-| GitHub repo pushed | see "Next actions" |
-| First GPU run (3 seeds, real LibriTTS-R) | pending — the actual result |
+| GitHub repo pushed | done — github.com/harrrshall/hrm-vall-e |
+| Modal smoke test (500 steps) | done — pipeline verified green on A100 |
+| Architecture PNG (`assets/architecture.png`) | done |
+| First GPU run (3 seeds, 5000 steps) | running — the actual result |
 
 ## Credentials — audited, with verification status
 
@@ -38,11 +40,17 @@ auth); first real run uses **3 seeds per backbone** for noise control.
 
 ## Run plan
 
-1. Smoke: `modal run modal_train.py --steps 500 --seeds 0` (~10 min, a few cents).
+1. Smoke: `modal run modal_train.py --steps 500 --seeds 0` — DONE,
+   passed green on an A100 (took 3 tries; see learnings below).
 2. Full: `bash scripts/run_and_notify.sh modal` — 3 seeds x 2 backbones,
-   5000 steps, ~1 h of LibriTTS-R dev-clean. A100, est. $9-12 of credit.
+   5000 steps, ~1 h of LibriTTS-R dev.clean. A100. RUNNING.
 3. Pull results: `modal volume get hrm-vall-e-results /run ./runs/modal`.
 4. Read `results.json` → `verdict.winner` and `verdict.exceeds_noise`.
+
+Note on the smoke result: at 500 steps the baseline "won" by ~21%.
+That is expected and meaningless — HRM's bp-warmup ramps over the first
+20% of training, so a 500-step run is almost all warmup. The 5000-step
+run is the fair comparison.
 
 ## Learnings (errors hit + how they were resolved)
 
