@@ -64,6 +64,14 @@ auth); first real run uses **3 seeds per backbone** for noise control.
 - **Modal `gpu=` is set on the `@app.function` decorator**, not the
   `modal run` CLI. Made it an env var (`MODAL_GPU`) so it stays
   CLI-configurable.
+- **LibriTTS-R HF dataset config/split naming** — the first Modal run
+  failed in tokenization: `load_dataset("mythicinfinity/libritts_r",
+  "dev-clean", split="train")` is wrong. The dataset wants an HF
+  *config* (`dev` / `clean` / `other` / `all`) plus a *dotted* split
+  name (`dev.clean`, not `dev-clean`). Fixed with a `SPLIT_MAP` in
+  `scripts/prepare_libritts.py`. Lesson: verify dataset config/split
+  names against the dataset card before a paid GPU run — caught here
+  only because the smoke test ran first (cost: a few cents, not $12).
 
 Project rule in force: never guess library APIs / CLI flags / pricing —
 web-search and verify. See the `feedback-verify-dont-guess` memory.
