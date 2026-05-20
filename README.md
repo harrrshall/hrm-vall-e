@@ -20,6 +20,40 @@ compute distribution.
 Same params, ~4× the effective depth. The question is whether that
 buys lower val loss at convergence.
 
+## Result
+
+**It does not — the stacked transformer wins.** Head-to-head on 20 h of
+LibriTTS-R (`train-clean-100`, 13,155 clips, 3 seeds, 5000 steps, no
+overfitting):
+
+| backbone | params | best val loss (mean ± std) |
+| --- | --- | --- |
+| **Baseline** (stacked) | 15,148,800 | **3.565 ± 0.003** |
+| HRM (looped) | 15,149,184 | 3.880 ± 0.056 |
+
+**The baseline beats HRM by 8.84%.** The gap (0.315) is ~5× the
+combined seed noise (0.058) — a decisive, clean **negative result**.
+
+![loss curves](results/20h-train-clean-100/loss_curves.png)
+
+Two things stand out in the curves:
+
+1. **HRM's bp-warmup costs it ~700 steps.** Its loss sits on a plateau
+   until truncated backprop ramps up, then drops sharply — but never
+   closes the gap to the baseline within the budget.
+2. **HRM is far less stable** — baseline seeds land within 0.006 of
+   each other; HRM seeds spread over 0.135.
+
+**Honest scope.** This is one scale (~15M params), one budget (5000
+steps), a single EnCodec codebook, with gated attention deliberately
+omitted. The claim is narrow: *at this scale, stacking beats looping on
+audio tokens* — not "HRM never helps for speech." HRM's published wins
+are on reasoning/puzzle tasks and emphasise test-time compute scaling,
+neither of which this setup exercises. Full write-up, per-seed numbers,
+and the flawed-then-fixed first run are in [`results/`](results/).
+
+Total cost of the experiment: ~$15 of cloud GPU.
+
 ## Layout
 
 ```
