@@ -35,7 +35,8 @@ def main():
     if not os.path.isdir(WORK):
         sh(["git", "clone", "--depth", "1", REPO, WORK])
     sh([sys.executable, "-m", "pip", "install", "-q",
-        "transformers", "datasets", "soundfile", "librosa", "torchaudio", "matplotlib"])
+        "transformers", "datasets", "soundfile", "librosa", "torchaudio",
+        "torchcodec", "matplotlib"])
     sh([sys.executable, "-m", "scripts.run_comparison",
         "--out", f"{WORK}/runs/colab",
         "--steps", str(STEPS),

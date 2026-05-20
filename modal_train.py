@@ -35,6 +35,9 @@ image = (
     .pip_install(
         "torch", "torchaudio", "numpy", "matplotlib",
         "transformers", "datasets", "soundfile", "librosa",
+        # datasets >= 4.0 decodes the Audio feature via torchcodec
+        # (which uses the apt-installed ffmpeg above).
+        "torchcodec",
     )
 )
 

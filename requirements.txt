@@ -9,6 +9,7 @@ torchaudio>=2.4,<2.6
 transformers>=4.44,<4.50
 accelerate>=0.34
 datasets>=2.21
+torchcodec        # datasets >= 4.0 audio decoding backend (needs ffmpeg)
 soundfile
 librosa
 matplotlib
