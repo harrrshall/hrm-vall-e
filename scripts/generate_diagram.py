@@ -1,8 +1,9 @@
 """
 Render the HRM-vs-baseline architecture diagram to a PNG.
 
-Standalone matplotlib — no browser, no Excalidraw dependency. Produces
-assets/architecture.png, the image to attach to the launch tweet.
+Standalone matplotlib — no browser, no Excalidraw dependency. Dark,
+spacious, big focal numbers. Produces assets/architecture.png, the
+image to attach to the launch tweet.
 
     python scripts/generate_diagram.py
 """
@@ -11,105 +12,125 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Circle
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 
 OUT = Path(__file__).resolve().parents[1] / "assets" / "architecture.png"
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
-# palette
-INK, GREY, WHITE = "#1e1e1e", "#5b6472", "#ffffff"
-ORANGE, ORANGE_BG, ORANGE_FILL = "#e08a00", "#fdebd3", "#ffd8a8"
-PURPLE, PURPLE_BG, PURPLE_FILL = "#7c3aed", "#ece3ff", "#d0bfff"
-BLUE, BLUE_BG, BLUE_FILL = "#2f7fd8", "#e4ecfb", "#a5d8ff"
-GREEN, GREEN_FILL = "#1f9d4d", "#b2f2bb"
-YELLOW, YELLOW_FILL = "#e0a800", "#fff3bf"
+# ---- palette (dark "nerd" theme) ----
+BG        = "#0d1117"
+CARD      = "#161b22"
+EDGE      = "#2b313b"
+INK       = "#e6edf3"
+MUTED     = "#8b949e"
+AMBER     = "#f0a93b"   # baseline accent
+AMBER_DK  = "#2a2113"
+VIOLET    = "#a371f7"   # HRM accent
+VIOLET_DK = "#241b3a"
+GREEN     = "#3fb950"
+MONO      = "monospace"
 
 
-def box(ax, x, y, w, h, *, fc, ec, text="", fs=13, tc=INK, weight="normal",
-        lw=1.8, rs=14, alpha=1.0):
+def rbox(ax, x, y, w, h, *, fc, ec, lw=1.6, rs=18, z=2, alpha=1.0):
     ax.add_patch(FancyBboxPatch(
         (x, y), w, h, boxstyle=f"round,pad=0,rounding_size={rs}",
-        fc=fc, ec=ec, lw=lw, alpha=alpha, zorder=2))
-    if text:
-        ax.text(x + w / 2, y + h / 2, text, ha="center", va="center",
-                fontsize=fs, color=tc, weight=weight, zorder=3)
+        fc=fc, ec=ec, lw=lw, zorder=z, alpha=alpha))
 
 
-def arrow(ax, p0, p1, *, color=INK, lw=2.2, style="-|>", ms=22):
-    ax.add_patch(FancyArrowPatch(p0, p1, arrowstyle=style, mutation_scale=ms,
-                                 color=color, lw=lw, zorder=4,
-                                 shrinkA=0, shrinkB=0))
+def label(ax, x, y, text, *, fs, color=INK, ha="center", va="center",
+          weight="normal", mono=False):
+    ax.text(x, y, text, ha=ha, va=va, fontsize=fs, color=color,
+            weight=weight, family=(MONO if mono else "sans-serif"), zorder=6)
 
 
 def main():
-    fig, ax = plt.subplots(figsize=(13.2, 8.2))
+    fig, ax = plt.subplots(figsize=(13.4, 8.4))
+    fig.patch.set_facecolor(BG)
     ax.set_xlim(0, 1600)
     ax.set_ylim(0, 1000)
     ax.axis("off")
+    ax.add_patch(FancyBboxPatch((-200, -200), 2000, 1400, boxstyle="square,pad=0",
+                                fc=BG, ec="none", zorder=0))
 
-    # ---- title ----
-    ax.text(800, 958, "HRM  vs  Transformer  —  same parameters, 4x the compute",
-            ha="center", va="center", fontsize=21, weight="bold", color=INK)
-    ax.text(800, 922, "Can hierarchical recurrence beat plain stacking on audio tokens?",
-            ha="center", va="center", fontsize=13.5, color=GREY)
+    # ---- title (two-tone) ----
+    label(ax, 762, 938, "HRM", fs=43, color=VIOLET, weight="bold", ha="right")
+    label(ax, 800, 936, "vs", fs=26, color=MUTED, ha="center")
+    label(ax, 838, 938, "Transformer", fs=43, color=AMBER, weight="bold", ha="left")
+    label(ax, 800, 884,
+          "an audio language model  —  text prompt in, speech tokens out",
+          fs=15, color=MUTED, mono=True)
 
-    # ---- left: baseline ----
-    box(ax, 70, 432, 640, 458, fc=ORANGE_BG, ec=ORANGE, alpha=0.55, lw=1.4, rs=22)
-    box(ax, 130, 818, 520, 52, fc=ORANGE_FILL, ec=ORANGE,
-        text="BASELINE  —  stacked transformer", fs=14.5, weight="bold")
-    arrow(ax, (210, 512), (210, 800), color=BLUE, lw=2.4)
-    blocks = [("Block 8", 738), ("Block 7", 678)]
-    for label, y in blocks:
-        box(ax, 270, y, 320, 48, fc=BLUE_FILL, ec=BLUE, text=label, fs=14)
-    ax.text(430, 643, ". . .", ha="center", va="center", fontsize=22, color=GREY)
-    for label, y in [("Block 2", 568), ("Block 1", 508)]:
-        box(ax, 270, y, 320, 48, fc=BLUE_FILL, ec=BLUE, text=label, fs=14)
-    box(ax, 210, 452, 360, 44, fc=ORANGE, ec=ORANGE,
-        text="effective depth = 8", fs=14, tc=WHITE, weight="bold")
+    # ================= LEFT CARD : BASELINE =================
+    lx, lw_ = 96, 648
+    lcx = lx + lw_ / 2
+    rbox(ax, lx, 150, lw_, 690, fc=CARD, ec=EDGE, lw=1.6, rs=26)
+    rbox(ax, lx + 36, 766, 188, 48, fc=AMBER_DK, ec=AMBER, lw=1.4, rs=14)
+    label(ax, lx + 36 + 94, 790, "BASELINE", fs=15, color=AMBER,
+          weight="bold", mono=True)
 
-    # ---- right: HRM ----
-    box(ax, 890, 432, 640, 458, fc=PURPLE_BG, ec=PURPLE, alpha=0.55, lw=1.4, rs=22)
-    box(ax, 950, 818, 520, 52, fc=PURPLE_FILL, ec=PURPLE,
-        text="HRM  —  recurrent backbone", fs=14.5, weight="bold")
-    box(ax, 1050, 686, 380, 82, fc=PURPLE_FILL, ec=PURPLE,
-        text="H-module : 4 blocks\n(slow planner)", fs=13.5)
-    box(ax, 1050, 556, 380, 82, fc=PURPLE_FILL, ec=PURPLE,
-        text="L-module : 4 blocks\n(fast worker)", fs=13.5)
-    arrow(ax, (1120, 686), (1120, 638), color=PURPLE)      # H -> L
-    arrow(ax, (1360, 638), (1360, 686), color=PURPLE)      # L -> H
-    ax.text(1240, 662, "loop x6", ha="center", va="center", fontsize=12.5,
-            color=PURPLE, weight="bold")
-    arrow(ax, (965, 727), (1050, 727), color=PURPLE)
-    ax.text(965, 752, "input inject", ha="center", va="bottom", fontsize=11.5,
-            color=PURPLE)
-    box(ax, 1070, 452, 380, 44, fc=PURPLE, ec=PURPLE,
-        text="effective depth = 32", fs=14, tc=WHITE, weight="bold")
+    for yy in (660, 592, 524):
+        rbox(ax, lcx - 200, yy, 270, 52, fc=AMBER_DK, ec=AMBER, lw=1.5, rs=12)
+        label(ax, lcx - 65, yy + 26, "block", fs=15, color=INK, mono=True)
+    label(ax, lcx + 150, 618, "x8", fs=46, color=AMBER, weight="bold", mono=True)
+    label(ax, lcx + 150, 566, "stacked", fs=13, color=MUTED, mono=True)
 
-    # ---- center VS ----
-    ax.add_patch(Circle((800, 660), 46, fc=YELLOW_FILL, ec=YELLOW, lw=2.2,
-                        zorder=5))
-    ax.text(800, 660, "VS", ha="center", va="center", fontsize=18,
-            weight="bold", color=INK, zorder=6)
+    label(ax, lcx, 462, "8 distinct blocks, each used once",
+          fs=14.5, color=MUTED, mono=True)
+    ax.plot([lx + 60, lx + lw_ - 60], [430, 430], color=EDGE, lw=1.2, zorder=1)
+    label(ax, lcx, 392, "EFFECTIVE  DEPTH", fs=14, color=MUTED, mono=True)
+    label(ax, lcx, 288, "8", fs=128, color=AMBER, weight="bold", mono=True)
+    label(ax, lcx, 196, "8 blocks  x  1 pass", fs=13.5, color=MUTED, mono=True)
 
-    # ---- bottom: shared task ----
-    box(ax, 70, 150, 1460, 250, fc=BLUE_BG, ec=BLUE, alpha=0.55, lw=1.4, rs=24)
-    ax.text(800, 360, "THE SHARED TASK  —  autoregressive audio language model",
-            ha="center", va="center", fontsize=14.5, weight="bold", color=INK)
-    box(ax, 210, 250, 470, 70, fc=BLUE_FILL, ec=BLUE,
-        text="[BOS]  text prompt  [SEP]", fs=14.5)
-    arrow(ax, (690, 285), (910, 285), color=INK, lw=2.4)
-    ax.text(800, 305, "predict", ha="center", va="bottom", fontsize=12, color=GREY)
-    box(ax, 920, 250, 470, 70, fc=GREEN_FILL, ec=GREEN,
-        text="EnCodec speech tokens  [EOS]", fs=14.5)
-    ax.text(800, 195, "PrefixLM: bidirectional text in  ->  causal speech tokens out",
-            ha="center", va="center", fontsize=12, color=GREY)
+    # ================= RIGHT CARD : HRM =================
+    rx, rw_ = 856, 648
+    rcx = rx + rw_ / 2
+    rbox(ax, rx, 150, rw_, 690, fc=CARD, ec=EDGE, lw=1.6, rs=26)
+    rbox(ax, rx + 36, 766, 130, 48, fc=VIOLET_DK, ec=VIOLET, lw=1.4, rs=14)
+    label(ax, rx + 36 + 65, 790, "HRM", fs=15, color=VIOLET,
+          weight="bold", mono=True)
 
-    # ---- thesis banner ----
-    box(ax, 70, 56, 1460, 60, fc=YELLOW_FILL, ec=YELLOW, lw=1.6, rs=18,
-        text="If HRM wins: deeper, smarter speech models at NO extra parameters.",
-        fs=15, weight="bold")
+    rbox(ax, rcx - 175, 648, 350, 66, fc=VIOLET_DK, ec=VIOLET, lw=1.6, rs=14)
+    label(ax, rcx, 681, "H  .  planner", fs=16, color=INK, mono=True)
+    rbox(ax, rcx - 175, 520, 350, 66, fc=VIOLET_DK, ec=VIOLET, lw=1.6, rs=14)
+    label(ax, rcx, 553, "L  .  worker", fs=16, color=INK, mono=True)
 
-    fig.savefig(OUT, dpi=170, bbox_inches="tight", facecolor="white")
+    # recurrence loop (two curved arrows)
+    ax.add_patch(FancyArrowPatch((rcx - 90, 648), (rcx - 90, 586),
+                                 connectionstyle="arc3,rad=0.5",
+                                 arrowstyle="-|>", mutation_scale=20,
+                                 color=VIOLET, lw=2.2, zorder=4))
+    ax.add_patch(FancyArrowPatch((rcx + 90, 586), (rcx + 90, 648),
+                                 connectionstyle="arc3,rad=0.5",
+                                 arrowstyle="-|>", mutation_scale=20,
+                                 color=VIOLET, lw=2.2, zorder=4))
+    label(ax, rcx, 617, "loop x6", fs=13.5, color=VIOLET, weight="bold", mono=True)
+    ax.add_patch(FancyArrowPatch((rcx - 230, 681), (rcx - 175, 681),
+                                 arrowstyle="-|>", mutation_scale=18,
+                                 color=MUTED, lw=2.0, zorder=4))
+    label(ax, rcx - 238, 681, "input", fs=12.5, color=MUTED, ha="right", mono=True)
+
+    label(ax, rcx, 462, "4 + 4 shared blocks, reused every loop",
+          fs=14.5, color=MUTED, mono=True)
+    ax.plot([rx + 60, rx + rw_ - 60], [430, 430], color=EDGE, lw=1.2, zorder=1)
+    label(ax, rcx, 392, "EFFECTIVE  DEPTH", fs=14, color=MUTED, mono=True)
+    label(ax, rcx, 288, "32", fs=128, color=VIOLET, weight="bold", mono=True)
+    label(ax, rcx, 196, "8 blocks  x  4 passes", fs=13.5, color=MUTED, mono=True)
+
+    # ---- bridge: same params ----
+    rbox(ax, 690, 408, 220, 46, fc=BG, ec=MUTED, lw=1.4, rs=14, z=5)
+    label(ax, 800, 431, "= 15.1M params", fs=13.5, color=INK, mono=True)
+
+    # ---- thesis ----
+    label(ax, 800, 92,
+          "Same parameters. If recurrence beats stacking,",
+          fs=18, color=INK)
+    label(ax, 800, 60,
+          "speech models get deeper for free.",
+          fs=18, color=VIOLET, weight="bold")
+    label(ax, 800, 24, "github.com/harrrshall/hrm-vall-e",
+          fs=12, color=MUTED, mono=True)
+
+    fig.savefig(OUT, dpi=170, bbox_inches="tight", facecolor=BG)
     print(f"wrote {OUT}")
 
 
